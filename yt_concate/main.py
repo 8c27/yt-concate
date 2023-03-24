@@ -1,36 +1,20 @@
-import urllib.request
-import json
-import os
-
+from yt_concate.pipeline.steps.get_video_list_from_channel import GetVideoList
+from yt_concate.pipeline.pipeline import Pipeline
 ChannelId = "UCAuUUnT6oDeKwE6v1NGQxug"  # TED channel ID
+def main():
+    inputs = {
+        "channel_id" : ChannelId
+    }
+    steps = [
+        GetVideoList(),
+    ]
+
+    p = Pipeline(steps)
+    p.run(inputs)
 
 
-def get_all_video_in_channel(channel_id):
-    api_key = os.getenv("youtubeApiKey")  # api_key = "input api key"
-
-    base_video_url = 'https://www.youtube.com/watch?v='
-    base_search_url = 'https://www.googleapis.com/youtube/v3/search?'
-
-    first_url = base_search_url + 'key={}&channelId={}&part=snippet,id&order=date&maxResults=25'.format(api_key,
-                                                                                                        channel_id)
-
-    video_links = []
-    url = first_url
-    while True:
-        inp = urllib.request.urlopen(url)
-        resp = json.load(inp)
-
-        for i in resp['items']:
-            if i['id']['kind'] == "youtube#video":
-                video_links.append(base_video_url + i['id']['videoId'])
-
-        try:
-            next_page_token = resp['nextPageToken']
-            url = first_url + '&pageToken={}'.format(next_page_token)
-        except KeyError:
-            break
-    return video_links
+if __name__ == "__main__":
+    main()
 
 
-GetVideoList = get_all_video_in_channel(ChannelId)
-print(GetVideoList)
+
